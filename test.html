@@ -1,11 +1,107 @@
 <html>
 	<body>
+	Hello world
+	<input />
+	<div id="debug"></div>
+
+
 		<script>
-			window.addEventListener("gamepadconnected", function(e) {
-				console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
+		// see http://html5gamepad.com/
+		// Press any button on your gamepad(s) to make them show up
+		// or switch tabs!
+
+		// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad
+		// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
+		// https://www.smashingmagazine.com/2015/11/gamepad-api-in-web-games/
+
+			'use strict';
+
+			var currentPad;
+			var gp;
+			var start = performance.timing.navigationStart;
+
+			window.addEventListener('gamepadconnected', function(e) {
+				console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
 				e.gamepad.index, e.gamepad.id,
 				e.gamepad.buttons.length, e.gamepad.axes.length);
+
+				currentPad = e.gamepad;
+
+				moo();
+
+
 			});
+
+
+
+			window.addEventListener('gamepaddisconnected', function(e) {
+			 	console.log('Gamepad disconnected from index %d: %s',
+				e.gamepad.index, e.gamepad.id);
+			});
+
+
+			function moo() {
+				requestAnimationFrame(moo);
+
+				console.log('test');
+				var gamepads = navigator.getGamepads();
+			  	gp = gamepads[currentPad.index];
+
+				if (gp) {
+
+			    	// status.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id +
+			     //    ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
+			 		debug.innerHTML = `Axes: ${gp.axes} <br>
+			 		Buttons: ${gp.buttons.map( b => `${b.pressed? 'on' : 'off'} ${b.value}` )}<br/>
+			 		Timestamp: ${new Date(start + gp.timestamp / 1000 / 1000 )}<br/>
+			 		Connected: ${gp.connected}<br/>
+			 		Mapping: ${gp.mapping}<br/>
+			 		`;
+			    }
+
+
+
+			}
+
+			/* FF ONLY? */
+			window.addEventListener("gamepadbuttondown", function(e){
+			   // Button down
+			   console.log(
+
+			      "Button down",
+			      e.button, // Index of button in buttons array
+			      e.gamepad
+
+			   );
+			});
+
+			window.addEventListener("gamepadbuttonup", function(e){
+			   // Button up
+			   console.log(
+
+			      "Button up",
+			      e.button, // Index of button in buttons array
+			      e.gamepad
+
+			   );
+			});
+
+
+			window.addEventListener("gamepadaxismove", function(e){
+
+			   // Axis move
+			   console.log(
+
+			      "Axes move",
+			      e.axis, // Index of axis in axes array
+			      e.value,
+			      e.gamepad
+
+			   );
+			});
+
+
+
 		</script>
 
 	</body>
