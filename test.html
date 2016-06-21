@@ -83,9 +83,7 @@
 					var ANALOG_R_X = 600;
 					var ANALOG_R_Y = 200;
 					var ANALOG_STICK_RADUIS = 4;
-
-
-
+					var DEAD_ZONE_THRESHOLD = 0.15;
 
 					ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -114,12 +112,63 @@
 						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
 					ctx.fill();
 
+					ctx.fillStyle = 'green';
+
+					ctx.beginPath()
+					ctx.arc(
+						ANALOG_L_X + applyDeadzone(gp.axes[axes_mappings.leftAnalogX], DEAD_ZONE_THRESHOLD) * RADIUS,
+						ANALOG_L_Y + applyDeadzone(gp.axes[axes_mappings.leftAnalogY], DEAD_ZONE_THRESHOLD) * RADIUS,
+						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+					ctx.fill();
+
+					ctx.beginPath()
+					ctx.arc(
+						ANALOG_R_X + applyDeadzone(gp.axes[axes_mappings.rightAnalogX], DEAD_ZONE_THRESHOLD) * RADIUS,
+						ANALOG_R_Y + applyDeadzone(gp.axes[axes_mappings.rightAnalogY], DEAD_ZONE_THRESHOLD) * RADIUS,
+						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+					ctx.fill();
+
+					// barcharts of mapping...
+					var cols = [axes_mappings.leftAnalogX, axes_mappings.leftAnalogY, axes_mappings.rightAnalogX, axes_mappings.rightAnalogY];
+
+					ctx.fillStyle = 'purple';
+					for (var i = 0; i < cols.length; i++) {
+						var v = gp.axes[cols[i]];
+
+						ctx.beginPath();
+						var bx = 300 + i * 40;
+						var by = 400;
+						ctx.rect(bx, by, 20, RADIUS * v);
+						ctx.fill();
+					}
+
+					ctx.fillStyle = 'orange';
+
+					for (var i = 0; i < cols.length; i++) {
+						var v = gp.axes[cols[i]];
+						v = applyDeadzone(v, DEAD_ZONE_THRESHOLD);
+
+						ctx.beginPath();
+						var bx = 320 + i * 40;
+						var by = 400;
+						ctx.rect(bx, by, 10, RADIUS * v);
+						ctx.fill();
+					}
+
+					// TODO add calibration (dead center + extreme ends)
+					// TOOD add S curve post processing
+
+
+
+
+
+
 
 				}
 			}
 
 			function applyDeadzone (number, threshold){
-				percentage = (Math.abs(number) - threshold) / (1 - threshold);
+				var percentage = (Math.abs(number) - threshold) / (1 - threshold);
 
 				if(percentage < 0)
 					percentage = 0;
