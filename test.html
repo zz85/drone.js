@@ -82,6 +82,12 @@
 			let calibratedRX;
 			let calibratedRY;
 
+			var butt = new Button();
+
+			function Button() {
+
+			}
+
 
 			function animate() {
 				requestAnimationFrame(animate);
@@ -105,12 +111,20 @@
 					Flight time: ${((then-start)/1000).toFixed(1)}s
 					`;
 
-
+					var tmp = gp.buttons[11].pressed;
+					if (tmp != butt.pressed) {
+						// do something
+						if (tmp) {
+							craft.returnToHome();
+						}
+					}
+					butt.pressed = tmp;
 
 					leftX = gp.axes[ axes_mappings.leftAnalogX ];
 					leftY = gp.axes[ axes_mappings.leftAnalogY ];
 					rightX = gp.axes[ axes_mappings.rightAnalogX ];
 					rightY = gp.axes[ axes_mappings.rightAnalogY ];
+
 
 					// update simulation
 
