@@ -29,6 +29,22 @@
 			var gp;
 			var start = performance.timing.navigationStart;
 
+			var canvas;
+			var ctx;
+
+			init();
+
+			function init() {
+				canvas =  document.createElement('canvas');
+				document.body.appendChild(canvas);
+
+				canvas.width = 800;
+				canvas.height = 500;
+
+				ctx = canvas.getContext('2d');
+
+			}
+
 			window.addEventListener('gamepadconnected', function(e) {
 				console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
 				e.gamepad.index, e.gamepad.id,
@@ -54,15 +70,52 @@
 			  	gp = gamepads[currentPad.index];
 
 				if (gp) {
-			    	// status.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id +
-			     //    ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
-			 		debug.innerHTML = `Axes: ${gp.axes.map( (a,b)=> `#${b}: ${a.toFixed(4)} `)} <br>
-			 		Buttons: ${gp.buttons.map( (b, i) => `#${i}: ${b.pressed? 'on' : 'off'} ${b.value}` )}<br/>
-			 		Timestamp: ${new Date(start + gp.timestamp / 1000 / 1000 )}<br/>
-			 		Connected: ${gp.connected}<br/>
-			 		Mapping: ${gp.mapping}<br/>
-			 		`;
-			    }
+					debug.innerHTML = `Axes: ${gp.axes.map( (a,b)=> `#${b}: ${a.toFixed(4)} `)} <br>
+					Buttons: ${gp.buttons.map( (b, i) => `#${i}: ${b.pressed? 'on' : 'off'} ${b.value}` )}<br/>
+					Timestamp: ${new Date(start + gp.timestamp / 1000 / 1000 )}<br/>
+					Connected: ${gp.connected}<br/>
+					Mapping: ${gp.mapping}<br/>
+					`;
+
+					var RADIUS = 100;
+					var ANALOG_L_X = 200;
+					var ANALOG_L_Y = 200;
+					var ANALOG_R_X = 600;
+					var ANALOG_R_Y = 200;
+					var ANALOG_STICK_RADUIS = 4;
+
+
+
+
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+					ctx.strokeStyle = '#35b';
+					ctx.beginPath()
+					ctx.arc(ANALOG_L_X, ANALOG_L_Y, RADIUS, 0, Math.PI * 2);
+					ctx.stroke();
+
+					ctx.beginPath()
+					ctx.arc(ANALOG_R_X, ANALOG_R_Y, RADIUS, 0, Math.PI * 2);
+					ctx.stroke();
+
+					ctx.fillStyle = 'red';
+
+					ctx.beginPath()
+					ctx.arc(
+						ANALOG_L_X + gp.axes[axes_mappings.leftAnalogX] * RADIUS,
+						ANALOG_L_Y + gp.axes[axes_mappings.leftAnalogY] * RADIUS,
+						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+					ctx.fill();
+
+					ctx.beginPath()
+					ctx.arc(
+						ANALOG_R_X + gp.axes[axes_mappings.rightAnalogX] * RADIUS,
+						ANALOG_R_Y + gp.axes[axes_mappings.rightAnalogY] * RADIUS,
+						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+					ctx.fill();
+
+
+				}
 			}
 
 			function applyDeadzone (number, threshold){
@@ -83,11 +136,11 @@
 			}
 
 			var axes_mappings = {
-				'leftAnalogX': 0, // left -1, right + 1
-				'leftAnalogY': 1, // up -1, down +1
-				'rightAnalogX': 5, // up -1, down + 1
-				'rightAnalogY': 2, // left -1, right +1,
-				'directional': 9, // up -1, leff 0.7, down 0.1, right -0.4 - clockwise top -1, to bottom 0, top 1
+				leftAnalogX: 0, // left -1, right + 1
+				leftAnalogY: 1, // up -1, down +1
+				rightAnalogX: 2, // up -1, down + 1
+				rightAnalogY: 5, // left -1, right +1,
+				directional: 9, // up -1, leff 0.7, down 0.1, right -0.4 - clockwise top -1, to bottom 0, top 1
 				L2: 4, // release -1, full press 1
 				R2: 3,
 			};
@@ -96,18 +149,15 @@
 
 
 			var button_mappings = {
-				'leftAnalog': 13,
-				'rightAnalog': 14,
-				'start': 11,
+				leftAnalog: 13,
+				rightAnalog: 14,
+				start: 11,
 				L1: 6,
 				R1: 7,
 				A: 0,
 				B: 1,
 				X: 3,
 				Y: 4,
-
-
-
 			};
 
 
