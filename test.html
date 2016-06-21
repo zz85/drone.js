@@ -27,12 +27,10 @@
 
 				currentPad = e.gamepad;
 
-				moo();
+				animate();
 
 
 			});
-
-
 
 			window.addEventListener('gamepaddisconnected', function(e) {
 			 	console.log('Gamepad disconnected from index %d: %s',
@@ -40,8 +38,8 @@
 			});
 
 
-			function moo() {
-				requestAnimationFrame(moo);
+			function animate() {
+				requestAnimationFrame(animate);
 
 				console.log('test');
 				var gamepads = navigator.getGamepads();
@@ -51,55 +49,31 @@
 
 			    	// status.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id +
 			     //    ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
-			 		debug.innerHTML = `Axes: ${gp.axes} <br>
-			 		Buttons: ${gp.buttons.map( b => `${b.pressed? 'on' : 'off'} ${b.value}` )}<br/>
+			 		debug.innerHTML = `Axes: ${gp.axes.map( (a,b)=> `#${b}: ${a} `)} <br>
+			 		Buttons: ${gp.buttons.map( (b, i) => `#${i}: ${b.pressed? 'on' : 'off'} ${b.value}` )}<br/>
 			 		Timestamp: ${new Date(start + gp.timestamp / 1000 / 1000 )}<br/>
 			 		Connected: ${gp.connected}<br/>
 			 		Mapping: ${gp.mapping}<br/>
 			 		`;
 			    }
-
-
-
 			}
 
-			/* FF ONLY? */
-			window.addEventListener("gamepadbuttondown", function(e){
-			   // Button down
-			   console.log(
+			function applyDeadzone (number, threshold){
+				percentage = (Math.abs(number) - threshold) / (1 - threshold);
 
-			      "Button down",
-			      e.button, // Index of button in buttons array
-			      e.gamepad
+				if(percentage < 0)
+					percentage = 0;
 
-			   );
-			});
-
-			window.addEventListener("gamepadbuttonup", function(e){
-			   // Button up
-			   console.log(
-
-			      "Button up",
-			      e.button, // Index of button in buttons array
-			      e.gamepad
-
-			   );
-			});
+			   return percentage * (number > 0 ? 1 : -1);
+			}
 
 
-			window.addEventListener("gamepadaxismove", function(e){
+			function Drone() {
+				this.altitude = 0; // z
+				this.bearing = 0;
 
-			   // Axis move
-			   console.log(
-
-			      "Axes move",
-			      e.axis, // Index of axis in axes array
-			      e.value,
-			      e.gamepad
-
-			   );
-			});
-
+				this.gps = [0, 0]; // x y
+			}
 
 
 		</script>
