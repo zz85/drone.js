@@ -12,6 +12,7 @@
 				color: #000;
 				margin: 0px;
 				overflow: hidden;
+				font-size: 12px;
 			}
 
 			#info {
@@ -35,7 +36,101 @@
 			<a onclick="wind = !wind;">Wind</a> |
 			<a onclick="sphere.visible = !sphere.visible;">Ball</a> |
 			<a onclick="togglePins();">Pins</a>
+
+			<button onclick="craft.returnToHome()">Return To Home</button>
+			<div id="debug"></div>
+
 		</div>
+
+
+		<script src="controller.js"></script>
+		<script src="copter.js"></script>
+		<script src="app.js"></script>
+
+		<script>
+
+			function render() {
+
+				//
+
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.globalCompositeOperation = 'screen';
+
+				//
+
+				ctx.save();
+
+				ctx.strokeStyle = '#35b';
+				ctx.beginPath()
+				ctx.arc(ANALOG_L_X, ANALOG_L_Y, RADIUS, 0, Math.PI * 2);
+				ctx.stroke();
+
+				ctx.beginPath()
+				ctx.arc(ANALOG_R_X, ANALOG_R_Y, RADIUS, 0, Math.PI * 2);
+				ctx.stroke();
+
+				ctx.fillStyle = 'red';
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_L_X + leftX * RADIUS,
+					ANALOG_L_Y + leftY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_R_X + rightX * RADIUS,
+					ANALOG_R_Y + rightY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.fillStyle = 'green';
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_L_X + calibratedLX * RADIUS,
+					ANALOG_L_Y + calibratedLY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_R_X + calibratedRX * RADIUS,
+					ANALOG_R_Y + calibratedRY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				// bar charts of mapping...
+				var cols = [axes_mappings.leftAnalogX, axes_mappings.leftAnalogY, axes_mappings.rightAnalogX, axes_mappings.rightAnalogY];
+
+				ctx.fillStyle = 'purple';
+				for (var i = 0; i < cols.length; i++) {
+					var v = gp.axes[cols[i]];
+
+					ctx.beginPath();
+					var bx = 300 + i * 40;
+					var by = 400;
+					ctx.rect(bx, by, 20, RADIUS * v);
+					ctx.fill();
+				}
+
+				ctx.fillStyle = 'orange';
+
+				for (var i = 0; i < cols.length; i++) {
+					var v = gp.axes[cols[i]];
+					v = applyDeadzone(v, DEAD_ZONE_THRESHOLD);
+
+					ctx.beginPath();
+					var bx = 320 + i * 40;
+					var by = 400;
+					ctx.rect(bx, by, 10, RADIUS * v);
+					ctx.fill();
+				}
+			}
+
+		</script>
+
 
 		<script src="three.js"></script>
 
@@ -118,8 +213,12 @@
 			var sphere;
 			var object;
 
+			var controls;
+			var copterMesh;
+
+
 			init();
-			animate();
+			// animate();
 
 			function init() {
 
@@ -260,6 +359,14 @@
 				mesh.castShadow = true;
 				scene.add( mesh );
 
+				var copterGeometry = new THREE.BoxGeometry( 40, 10, 100 );
+				copterMesh = new THREE.Mesh( copterGeometry, new THREE.MeshBasicMaterial({ color: 'blue', wireframe: true }) );
+				// copterMesh.position.y = - 250;
+				// copterMesh.position.x = 125;
+				copterMesh.receiveShadow = true;
+				copterMesh.castShadow = true;
+				scene.add( copterMesh );
+
 				var mesh = new THREE.Mesh( gg, poleMat );
 				mesh.position.y = - 250;
 				mesh.position.x = - 125;
@@ -282,10 +389,15 @@
 				renderer.shadowMap.enabled = true;
 
 				// controls
-				var controls = new THREE.OrbitControls( camera, renderer.domElement );
+				controls = new THREE.OrbitControls( camera );
+
+				 // , renderer.domElement
 				controls.maxPolarAngle = Math.PI * 0.5;
 				controls.minDistance = 1000;
 				controls.maxDistance = 7500;
+				// controls.enableDamping = true;
+				// controls.dampingFactor = 0.25;
+				// controls.enableZoom = false;
 
 				// performance monitor
 
@@ -313,9 +425,14 @@
 
 			//
 
-			function animate() {
+			// function animate() {
 
-				requestAnimationFrame( animate );
+			// 	requestAnimationFrame( animate );
+			// render();
+
+			// }
+
+			function render() {
 
 				var time = Date.now();
 
@@ -323,12 +440,15 @@
 				windForce.set( Math.sin( time / 2000 ), Math.cos( time / 3000 ), Math.sin( time / 1000 ) ).normalize().multiplyScalar( windStrength );
 
 				simulate( time );
-				render();
+
 				stats.update();
 
-			}
 
-			function render() {
+
+				copterMesh.position.x = craft.x;
+				copterMesh.position.z = craft.y;
+				copterMesh.position.y = craft.altitude * 50 - 200;
+				copterMesh.rotation.y = craft.bearing;
 
 				var p = cloth.particles;
 
@@ -346,7 +466,10 @@
 
 				sphere.position.copy( ballPosition );
 
-				camera.lookAt( scene.position );
+
+				controls.update();
+
+				// camera.lookAt( scene.position );
 
 				renderer.render( scene, camera );
 
@@ -355,147 +478,3 @@
 		</script>
 	</body>
 </html>
-
-<!--
-
-
-<html>
-	<body>
-	<style>
-		body {
-			font-family: 'monospace';
-			font-size: 12px;
-		}
-	</style>
-	Hello Copter World!
-	<button onclick="craft.returnToHome()">Return To Home</button>
-	<div id="debug"></div>
-
-		<script src="controller.js"></script>
-		<script src="copter.js"></script>
-		<script src="app.js"></script>
-
-		<script>
-			function render() {
-
-				//
-
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-				ctx.fillStyle = '#000';
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
-				ctx.globalCompositeOperation = 'screen';
-
-				//
-
-				ctx.save();
-
-
-				ctx.translate(400, 400);
-				var s = 1;
-				ctx.translate(craft.x * s, craft.y * s);
-				ctx.rotate(craft.bearing);
-
-				ctx.fillStyle = '#666';
-				ctx.beginPath();
-				ctx.moveTo(0, -20);
-				ctx.lineTo(-20, 15);
-				ctx.lineTo(20, 15);
-				ctx.closePath();
-				ctx.fill();
-
-				ctx.fillStyle = 'red';
-				ctx.beginPath();
-				ctx.arc(-20, -20, 4, 0, Math.PI * 2);
-				ctx.fill();
-				ctx.beginPath();
-				ctx.arc(20, -20, 4, 0, Math.PI * 2);
-				ctx.fill();
-
-				ctx.fillStyle = 'pink';
-				ctx.beginPath();
-				ctx.arc(-20, 20, 4, 0, Math.PI * 2);
-				ctx.fill();
-				ctx.beginPath();
-				ctx.arc(20, 20, 4, 0, Math.PI * 2);
-				ctx.fill();
-
-				ctx.beginPath();
-				ctx.arc(0, 0, 15, 0, Math.PI * 2);
-				ctx.fill();
-
-				ctx.restore();
-
-				ctx.strokeStyle = '#35b';
-				ctx.beginPath()
-				ctx.arc(ANALOG_L_X, ANALOG_L_Y, RADIUS, 0, Math.PI * 2);
-				ctx.stroke();
-
-				ctx.beginPath()
-				ctx.arc(ANALOG_R_X, ANALOG_R_Y, RADIUS, 0, Math.PI * 2);
-				ctx.stroke();
-
-				ctx.fillStyle = 'red';
-
-				ctx.beginPath()
-				ctx.arc(
-					ANALOG_L_X + leftX * RADIUS,
-					ANALOG_L_Y + leftY * RADIUS,
-					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-				ctx.fill();
-
-				ctx.beginPath()
-				ctx.arc(
-					ANALOG_R_X + rightX * RADIUS,
-					ANALOG_R_Y + rightY * RADIUS,
-					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-				ctx.fill();
-
-				ctx.fillStyle = 'green';
-
-				ctx.beginPath()
-				ctx.arc(
-					ANALOG_L_X + calibratedLX * RADIUS,
-					ANALOG_L_Y + calibratedLY * RADIUS,
-					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-				ctx.fill();
-
-				ctx.beginPath()
-				ctx.arc(
-					ANALOG_R_X + calibratedRX * RADIUS,
-					ANALOG_R_Y + calibratedRY * RADIUS,
-					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-				ctx.fill();
-
-				// bar charts of mapping...
-				var cols = [axes_mappings.leftAnalogX, axes_mappings.leftAnalogY, axes_mappings.rightAnalogX, axes_mappings.rightAnalogY];
-
-				ctx.fillStyle = 'purple';
-				for (var i = 0; i < cols.length; i++) {
-					var v = gp.axes[cols[i]];
-
-					ctx.beginPath();
-					var bx = 300 + i * 40;
-					var by = 400;
-					ctx.rect(bx, by, 20, RADIUS * v);
-					ctx.fill();
-				}
-
-				ctx.fillStyle = 'orange';
-
-				for (var i = 0; i < cols.length; i++) {
-					var v = gp.axes[cols[i]];
-					v = applyDeadzone(v, DEAD_ZONE_THRESHOLD);
-
-					ctx.beginPath();
-					var bx = 320 + i * 40;
-					var by = 400;
-					ctx.rect(bx, by, 10, RADIUS * v);
-					ctx.fill();
-				}
-			}
-
-		</script>
-
-	</body>
-</html> -->
