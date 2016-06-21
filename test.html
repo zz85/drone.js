@@ -61,6 +61,28 @@
 			var then = performance.now();
 			var start = performance.now();
 
+			const GROUND = 0;
+			const RADIUS = 100;
+			const ANALOG_L_X = 200;
+			const ANALOG_L_Y = 200;
+			const ANALOG_R_X = 600;
+			const ANALOG_R_Y = 200;
+			const ANALOG_STICK_RADUIS = 4;
+			const DEAD_ZONE_THRESHOLD = 0.1; // 0.25;
+			const YAW_PER_SECOND = Math.PI * 1; //
+			const MAX_VS = -6; // max vertical speed
+			const MAX_HS = 20;
+
+			let leftX;
+			let leftY;
+			let rightX;
+			let rightY;
+			let calibratedLX;
+			let calibratedLY;
+			let calibratedRX;
+			let calibratedRY;
+
+
 			function animate() {
 				requestAnimationFrame(animate);
 
@@ -83,158 +105,157 @@
 					Flight time: ${((then-start)/1000).toFixed(1)}s
 					`;
 
-					var RADIUS = 100;
-					var ANALOG_L_X = 200;
-					var ANALOG_L_Y = 200;
-					var ANALOG_R_X = 600;
-					var ANALOG_R_Y = 200;
-					var ANALOG_STICK_RADUIS = 4;
-					var DEAD_ZONE_THRESHOLD = 0.1; // 0.25;
 
+
+					leftX = gp.axes[ axes_mappings.leftAnalogX ];
+					leftY = gp.axes[ axes_mappings.leftAnalogY ];
+					rightX = gp.axes[ axes_mappings.rightAnalogX ];
+					rightY = gp.axes[ axes_mappings.rightAnalogY ];
 
 					// update simulation
-					var v = applyDeadzone(gp.axes[ axes_mappings.leftAnalogY ], DEAD_ZONE_THRESHOLD);
-					craft.adjustHeight( v * delta * -5 ); // vertical height 5m/s
-					v = applyDeadzone(gp.axes[ axes_mappings.leftAnalogX ], DEAD_ZONE_THRESHOLD);
-					craft.adjustYaw( v * delta * Math.PI ); // yaw, 2s for 1 full rotation
 
-					v = applyDeadzone( gp.axes[ axes_mappings.rightAnalogX ], DEAD_ZONE_THRESHOLD);
-					craft.adjustTrottleX( v * delta * 10 );
-					v = applyDeadzone( gp.axes[ axes_mappings.rightAnalogY ], DEAD_ZONE_THRESHOLD);
-					craft.adjustTrottleY( v * delta * 10 );
+					calibratedLX = applyDeadzone( leftX, DEAD_ZONE_THRESHOLD );
+					calibratedLY = applyDeadzone( leftY, DEAD_ZONE_THRESHOLD );
+					calibratedRX = applyDeadzone( rightX, DEAD_ZONE_THRESHOLD );
+					calibratedRY = applyDeadzone( rightY, DEAD_ZONE_THRESHOLD );
+
+					craft.adjustHeight( calibratedLY * delta * MAX_VS ); // vertical height 5m/s
+					craft.adjustYaw( calibratedLX * delta * YAW_PER_SECOND ); // yaw, 2s for 1 full rotation
+
+					craft.adjustTrottleX( calibratedRX * delta * MAX_HS );
+					craft.adjustTrottleY( calibratedRY * delta * MAX_HS );
 
 					craft.update();
 
-					//
-
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-					ctx.fillStyle = '#000';
-					ctx.fillRect(0, 0, canvas.width, canvas.height);
-					ctx.globalCompositeOperation = 'screen';
-
-					//
-
-					ctx.save();
-
-
-
-					ctx.translate(400, 400);
-					var s = 1;
-					ctx.translate(craft.x * s, craft.y * s);
-					ctx.rotate(craft.bearing);
-
-					ctx.fillStyle = '#666';
-					ctx.beginPath();
-					ctx.moveTo(0, -20);
-					ctx.lineTo(-20, 15);
-					ctx.lineTo(20, 15);
-					ctx.closePath();
-					ctx.fill();
-
-					ctx.fillStyle = 'red';
-					ctx.beginPath();
-					ctx.arc(-20, -20, 4, 0, Math.PI * 2);
-					ctx.fill();
-					ctx.beginPath();
-					ctx.arc(20, -20, 4, 0, Math.PI * 2);
-					ctx.fill();
-
-					ctx.fillStyle = 'pink';
-					ctx.beginPath();
-					ctx.arc(-20, 20, 4, 0, Math.PI * 2);
-					ctx.fill();
-					ctx.beginPath();
-					ctx.arc(20, 20, 4, 0, Math.PI * 2);
-					ctx.fill();
-
-					ctx.beginPath();
-					ctx.arc(0, 0, 15, 0, Math.PI * 2);
-					ctx.fill();
-
-					ctx.restore();
-
-					ctx.strokeStyle = '#35b';
-					ctx.beginPath()
-					ctx.arc(ANALOG_L_X, ANALOG_L_Y, RADIUS, 0, Math.PI * 2);
-					ctx.stroke();
-
-					ctx.beginPath()
-					ctx.arc(ANALOG_R_X, ANALOG_R_Y, RADIUS, 0, Math.PI * 2);
-					ctx.stroke();
-
-					ctx.fillStyle = 'red';
-
-					ctx.beginPath()
-					ctx.arc(
-						ANALOG_L_X + gp.axes[axes_mappings.leftAnalogX] * RADIUS,
-						ANALOG_L_Y + gp.axes[axes_mappings.leftAnalogY] * RADIUS,
-						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-					ctx.fill();
-
-					ctx.beginPath()
-					ctx.arc(
-						ANALOG_R_X + gp.axes[axes_mappings.rightAnalogX] * RADIUS,
-						ANALOG_R_Y + gp.axes[axes_mappings.rightAnalogY] * RADIUS,
-						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-					ctx.fill();
-
-					ctx.fillStyle = 'green';
-
-					ctx.beginPath()
-					ctx.arc(
-						ANALOG_L_X + applyDeadzone(gp.axes[axes_mappings.leftAnalogX], DEAD_ZONE_THRESHOLD) * RADIUS,
-						ANALOG_L_Y + applyDeadzone(gp.axes[axes_mappings.leftAnalogY], DEAD_ZONE_THRESHOLD) * RADIUS,
-						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-					ctx.fill();
-
-					ctx.beginPath()
-					ctx.arc(
-						ANALOG_R_X + applyDeadzone(gp.axes[axes_mappings.rightAnalogX], DEAD_ZONE_THRESHOLD) * RADIUS,
-						ANALOG_R_Y + applyDeadzone(gp.axes[axes_mappings.rightAnalogY], DEAD_ZONE_THRESHOLD) * RADIUS,
-						ANALOG_STICK_RADUIS, 0, Math.PI * 2);
-					ctx.fill();
-
-					// barcharts of mapping...
-					var cols = [axes_mappings.leftAnalogX, axes_mappings.leftAnalogY, axes_mappings.rightAnalogX, axes_mappings.rightAnalogY];
-
-					ctx.fillStyle = 'purple';
-					for (var i = 0; i < cols.length; i++) {
-						var v = gp.axes[cols[i]];
-
-						ctx.beginPath();
-						var bx = 300 + i * 40;
-						var by = 400;
-						ctx.rect(bx, by, 20, RADIUS * v);
-						ctx.fill();
-					}
-
-					ctx.fillStyle = 'orange';
-
-					for (var i = 0; i < cols.length; i++) {
-						var v = gp.axes[cols[i]];
-						v = applyDeadzone(v, DEAD_ZONE_THRESHOLD);
-
-						ctx.beginPath();
-						var bx = 320 + i * 40;
-						var by = 400;
-						ctx.rect(bx, by, 10, RADIUS * v);
-						ctx.fill();
-					}
 
 					// TODO add calibration (dead center + extreme ends)
 					// TOOD add S curve post processing
 
 
-
-
-
-
-
+					render();
 				}
 			}
 
-			function applyDeadzone (number, threshold){
+			function render() {
+
+				//
+
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+				ctx.fillStyle = '#000';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				ctx.globalCompositeOperation = 'screen';
+
+				//
+
+				ctx.save();
+
+
+				ctx.translate(400, 400);
+				var s = 1;
+				ctx.translate(craft.x * s, craft.y * s);
+				ctx.rotate(craft.bearing);
+
+				ctx.fillStyle = '#666';
+				ctx.beginPath();
+				ctx.moveTo(0, -20);
+				ctx.lineTo(-20, 15);
+				ctx.lineTo(20, 15);
+				ctx.closePath();
+				ctx.fill();
+
+				ctx.fillStyle = 'red';
+				ctx.beginPath();
+				ctx.arc(-20, -20, 4, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(20, -20, 4, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.fillStyle = 'pink';
+				ctx.beginPath();
+				ctx.arc(-20, 20, 4, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(20, 20, 4, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.beginPath();
+				ctx.arc(0, 0, 15, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.restore();
+
+				ctx.strokeStyle = '#35b';
+				ctx.beginPath()
+				ctx.arc(ANALOG_L_X, ANALOG_L_Y, RADIUS, 0, Math.PI * 2);
+				ctx.stroke();
+
+				ctx.beginPath()
+				ctx.arc(ANALOG_R_X, ANALOG_R_Y, RADIUS, 0, Math.PI * 2);
+				ctx.stroke();
+
+				ctx.fillStyle = 'red';
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_L_X + leftX * RADIUS,
+					ANALOG_L_Y + leftY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_R_X + rightX * RADIUS,
+					ANALOG_R_Y + rightY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.fillStyle = 'green';
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_L_X + calibratedLX * RADIUS,
+					ANALOG_L_Y + calibratedLY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				ctx.beginPath()
+				ctx.arc(
+					ANALOG_R_X + calibratedRX * RADIUS,
+					ANALOG_R_Y + calibratedRY * RADIUS,
+					ANALOG_STICK_RADUIS, 0, Math.PI * 2);
+				ctx.fill();
+
+				// bar charts of mapping...
+				var cols = [axes_mappings.leftAnalogX, axes_mappings.leftAnalogY, axes_mappings.rightAnalogX, axes_mappings.rightAnalogY];
+
+				ctx.fillStyle = 'purple';
+				for (var i = 0; i < cols.length; i++) {
+					var v = gp.axes[cols[i]];
+
+					ctx.beginPath();
+					var bx = 300 + i * 40;
+					var by = 400;
+					ctx.rect(bx, by, 20, RADIUS * v);
+					ctx.fill();
+				}
+
+				ctx.fillStyle = 'orange';
+
+				for (var i = 0; i < cols.length; i++) {
+					var v = gp.axes[cols[i]];
+					v = applyDeadzone(v, DEAD_ZONE_THRESHOLD);
+
+					ctx.beginPath();
+					var bx = 320 + i * 40;
+					var by = 400;
+					ctx.rect(bx, by, 10, RADIUS * v);
+					ctx.fill();
+				}
+			}
+
+			function applyDeadzone (number, threshold) {
 				var percentage = (Math.abs(number) - threshold) / (1 - threshold);
 
 				if(percentage < 0)

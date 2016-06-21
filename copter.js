@@ -18,7 +18,6 @@ Copter.prototype.print = function() {
 };
 
 Copter.prototype.adjustHeight = function(h) {
-	var GROUND = 0;
 	this.altitude += h;
 	if (this.altitude < GROUND) {
 		this.altitude = GROUND;
