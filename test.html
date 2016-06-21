@@ -3,10 +3,10 @@
 	<style>
 		body {
 			font-family: 'monospace';
+			font-size: 12px;
 		}
 	</style>
-	Hello world
-	<input />
+	Hello Copter World!
 	<div id="debug"></div>
 
 
@@ -42,7 +42,9 @@
 				document.body.appendChild(canvas);
 
 				canvas.width = 800;
-				canvas.height = 500;
+				canvas.height = 800;
+				canvas.style.position = 'absolute';
+				canvas.style.zIndex = 100;
 
 				ctx = canvas.getContext('2d');
 			}
@@ -97,17 +99,7 @@
 
 				this.vx *= 0.95;
 				this.vy *= 0.95;
-
-			}
-
-
-
-			// Copter.prototype.adjustTrottleX = function(v) {
-			// 	this.x += Math.cos( this.bearing ) * v;
-			// 	this.y += Math.sin( this.bearing ) * v;
-			// };
-
-
+			};
 
 			window.addEventListener('gamepadconnected', function(e) {
 				console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
@@ -115,10 +107,7 @@
 				e.gamepad.buttons.length, e.gamepad.axes.length);
 
 				currentPad = e.gamepad;
-
 				animate();
-
-
 			});
 
 			window.addEventListener('gamepaddisconnected', function(e) {
@@ -141,10 +130,12 @@
 			  	gp = gamepads[currentPad.index];
 
 				if (gp) {
-					debug.innerHTML = `Axes: ${gp.axes.map( (a,b)=> `#${b}: ${a.toFixed(4)} `)} <br>
+					debug.innerHTML = `
+					${gp.connected ? 'Connected' : 'Disconnected'}<br/>
+					Controller: ${gp.id}<br/>
+					Axes: ${gp.axes.map( (a,b)=> `#${b}: ${a.toFixed(4)} `)} <br>
 					Buttons: ${gp.buttons.map( (b, i) => `#${i}: ${b.pressed? 'on' : 'off'} ${b.value}` )}<br/>
 					Timestamp: ${new Date(start + gp.timestamp / 1000 / 1000 )}<br/>
-					Connected: ${gp.connected}<br/>
 					Mapping: ${gp.mapping}<br/>
 					Aircrat: ${craft.print()}<br/>
 					Flight time: ${((then-start)/1000).toFixed(1)}s
@@ -171,8 +162,6 @@
 					craft.adjustTrottleY( v * delta * 10 );
 
 					craft.update();
-
-
 
 					//
 
@@ -215,8 +204,6 @@
 					ctx.beginPath();
 					ctx.arc(0, 0, 15, 0, Math.PI * 2);
 					ctx.fill();
-
-
 
 					ctx.restore();
 
@@ -334,10 +321,6 @@
 				X: 3,
 				Y: 4,
 			};
-
-
-
-
 
 		</script>
 
