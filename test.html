@@ -12,16 +12,21 @@
 
 		<script>
 
+		// Author Joshua Koo twitter.com/blurspline | github.com/zz85
+		// 21 June 2016. Drank tea. Couldn't sleep. Decided to
+		// connect bluetooth game controller, try the Game Controller API
+		// and made a crude drone / quadcopter controller
+
 		// Built for SteelSeries Stratus XL (Vendor: 0111 Product: 1419)
+		// You may need to press any button on your gamepad or
+		// or switch tabs to activate the controller!?
 
 
-		// see http://html5gamepad.com/
-		// Press any button on your gamepad(s) to make them show up
-		// or switch tabs!
-
+		// Gamepad API references
 		// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad
 		// https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API
 		// https://www.smashingmagazine.com/2015/11/gamepad-api-in-web-games/
+		// http://html5gamepad.com/
 
 			'use strict';
 
@@ -167,6 +172,10 @@
 
 					ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+					ctx.fillStyle = '#000';
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					ctx.globalCompositeOperation = 'screen';
+
 					//
 
 					ctx.save();
@@ -296,6 +305,7 @@
 			   return percentage * (number > 0 ? 1 : -1);
 			}
 
+			// SOMEHOW MAPPINGS SEEMS ALL DIFFERENT IN FIREFOX!??!!??!
 
 			var axes_mappings = {
 				leftAnalogX: 0, // left -1, right + 1
