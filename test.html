@@ -10,6 +10,7 @@
 	<button onclick="craft.returnToHome()">Return To Home</button>
 	<div id="debug"></div>
 
+		<script src="controller.js"></script>
 		<script src="copter.js"></script>
 
 		<script>
@@ -55,21 +56,6 @@
 				ctx = canvas.getContext('2d');
 			}
 
-
-
-			window.addEventListener('gamepadconnected', function(e) {
-				console.log('Gamepad connected at index %d: %s. %d buttons, %d axes.',
-				e.gamepad.index, e.gamepad.id,
-				e.gamepad.buttons.length, e.gamepad.axes.length);
-
-				currentPad = e.gamepad;
-				animate();
-			});
-
-			window.addEventListener('gamepaddisconnected', function(e) {
-			 	console.log('Gamepad disconnected from index %d: %s',
-				e.gamepad.index, e.gamepad.id);
-			});
 
 
 			var then = performance.now();
