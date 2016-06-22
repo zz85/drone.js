@@ -359,13 +359,50 @@
 				mesh.castShadow = true;
 				scene.add( mesh );
 
-				var copterGeometry = new THREE.BoxGeometry( 40, 10, 100 );
-				copterMesh = new THREE.Mesh( copterGeometry, new THREE.MeshBasicMaterial({ color: 'blue', wireframe: true }) );
+				copterMesh = new THREE.Object3D();
+				var copterGeometry = new THREE.BoxGeometry( 40, 10, 60 );
+
+				var x = new THREE.Mesh( copterGeometry, new THREE.MeshBasicMaterial({ color: 'blue', wireframe: true }) );
+				copterMesh.add( x ) ;
+
+				var blue = new THREE.MeshBasicMaterial({ color: 'blue' });
+				var red = new THREE.MeshBasicMaterial({ color: 'red' });
+
+				var sphereGeometry = new THREE.SphereGeometry( 4, 1, 4);
+				x = new THREE.Mesh( sphereGeometry, blue );
+				x.position.x = -20;
+				x.position.y = 5;
+				x.position.z = 20;
+				copterMesh.add( x );
+
+				x = new THREE.Mesh( sphereGeometry, blue );
+				x.position.x = 20;
+				x.position.y = 5;
+				x.position.z = 20;
+				copterMesh.add( x ) ;
+
+				x = new THREE.Mesh( sphereGeometry, red );
+				x.position.x = 20;
+				x.position.y = 5;
+				x.position.z = -20;
+				copterMesh.add( x ) ;
+
+				x = new THREE.Mesh( sphereGeometry, red );
+				x.position.x = -20;
+				x.position.y = 5;
+				x.position.z = -20;
+				copterMesh.add( x );
+
+
+
+
 				// copterMesh.position.y = - 250;
 				// copterMesh.position.x = 125;
 				copterMesh.receiveShadow = true;
 				copterMesh.castShadow = true;
 				scene.add( copterMesh );
+
+
 
 				var mesh = new THREE.Mesh( gg, poleMat );
 				mesh.position.y = - 250;
@@ -444,11 +481,11 @@
 				stats.update();
 
 
-
-				copterMesh.position.x = craft.x;
-				copterMesh.position.z = craft.y;
+				copterMesh.position.x = craft.x * 10;
+				copterMesh.position.z = craft.y * 10;
 				copterMesh.position.y = craft.altitude * 50 - 200;
-				copterMesh.rotation.y = craft.bearing;
+				copterMesh.rotation.y = -craft.bearing;
+				camera.lookAt( copterMesh.position );
 
 				var p = cloth.particles;
 
@@ -467,7 +504,7 @@
 				sphere.position.copy( ballPosition );
 
 
-				controls.update();
+				// controls.update();
 
 				// camera.lookAt( scene.position );
 
