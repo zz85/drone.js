@@ -362,7 +362,7 @@
 				copterMesh = new THREE.Object3D();
 				var copterGeometry = new THREE.BoxGeometry( 40, 10, 60 );
 
-				var x = new THREE.Mesh( copterGeometry, new THREE.MeshBasicMaterial({ color: 'blue', wireframe: true }) );
+				var x = new THREE.Mesh( copterGeometry, new THREE.MeshLambertMaterial({ color: 'blue', wireframe: !true }) );
 				copterMesh.add( x ) ;
 
 				var blue = new THREE.MeshBasicMaterial({ color: 'blue' });
@@ -485,6 +485,11 @@
 				copterMesh.position.z = craft.y * 10;
 				copterMesh.position.y = craft.altitude * 50 - 200;
 				copterMesh.rotation.y = -craft.bearing;
+
+
+				copterMesh.rotation.z = - calibratedRX * 0.25;
+				copterMesh.rotation.x = calibratedRY * 0.25;
+
 				camera.lookAt( copterMesh.position );
 
 				var p = cloth.particles;
