@@ -359,38 +359,48 @@
 				mesh.castShadow = true;
 				scene.add( mesh );
 
-				copterMesh = new THREE.Object3D();
-				var copterGeometry = new THREE.BoxGeometry( 40, 10, 60 );
+				var COPTER_RADIUS = 20;
 
-				var x = new THREE.Mesh( copterGeometry, new THREE.MeshLambertMaterial({ color: 'blue', wireframe: !true }) );
+				copterMesh = new THREE.Object3D();
+				var copterGeometry = new THREE.BoxGeometry( 5, 5, 60 );
+
+				var x = new THREE.Mesh( copterGeometry, new THREE.MeshLambertMaterial({ color: 'blue', wireframe: true }) );
+
+				x.rotation.y = Math.PI / 4;
 				copterMesh.add( x ) ;
+
+				x = new THREE.Mesh( copterGeometry, new THREE.MeshLambertMaterial({ color: 'blue', wireframe: true }) );
+
+				x.rotation.y = -Math.PI / 4;
+				copterMesh.add( x ) ;
+
 
 				var blue = new THREE.MeshBasicMaterial({ color: 'blue' });
 				var red = new THREE.MeshBasicMaterial({ color: 'red' });
 
 				var sphereGeometry = new THREE.SphereGeometry( 4, 1, 4);
 				x = new THREE.Mesh( sphereGeometry, blue );
-				x.position.x = -20;
+				x.position.x = -COPTER_RADIUS;
 				x.position.y = 5;
-				x.position.z = 20;
+				x.position.z = COPTER_RADIUS;
 				copterMesh.add( x );
 
 				x = new THREE.Mesh( sphereGeometry, blue );
-				x.position.x = 20;
+				x.position.x = COPTER_RADIUS;
 				x.position.y = 5;
-				x.position.z = 20;
+				x.position.z = COPTER_RADIUS;
 				copterMesh.add( x ) ;
 
 				x = new THREE.Mesh( sphereGeometry, red );
-				x.position.x = 20;
+				x.position.x = COPTER_RADIUS;
 				x.position.y = 5;
-				x.position.z = -20;
+				x.position.z = -COPTER_RADIUS;
 				copterMesh.add( x ) ;
 
 				x = new THREE.Mesh( sphereGeometry, red );
-				x.position.x = -20;
+				x.position.x = -COPTER_RADIUS;
 				x.position.y = 5;
-				x.position.z = -20;
+				x.position.z = -COPTER_RADIUS;
 				copterMesh.add( x );
 
 
