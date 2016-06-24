@@ -5,8 +5,10 @@ Drone / QuadCopter flight simulator controlled with a game controller that mimic
 -- This project is in progress --
 
 ## Try out now
-[https://zz85.github.io/drone.js/2d.html](2D Simulator)
-[https://zz85.github.io/drone.js/3d.html](3D Simulator)
+
+[2D Simulator](https://zz85.github.io/drone.js/2d.html)
+
+[3D Simulator](https://zz85.github.io/drone.js/3d.html)
 
 
 Future enhancements
